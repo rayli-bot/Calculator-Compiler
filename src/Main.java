@@ -1,9 +1,11 @@
 import java.util.Scanner;
 import java.util.List;
 import java.util.ArrayList;
-import core.compile.Compiler;
+import core.compilor.CalculatorCompiler;
 import visualization.*;
 import core.expression.*;
+import extension.compiler.FixedPlaceCompiler;
+import extension.decorator.ExpressionDecorator;
 
 public class Main {
 
@@ -32,8 +34,22 @@ public class Main {
             // Calculate
             else {
                 try {
+                    CalculatorCompiler compiler = null;
+                    String fixed = "";
+                    do {
+                        System.out.println("Will you use A Fixed Decimal Place Constant Compiler ? (Y: Yes, N: No)");
+                        fixed = scanner.nextLine();
+                        System.out.println(fixed);
+                    } while (! (fixed.matches("Y") || fixed.matches("N")));
+                    if (fixed.matches("Y")) {
+                        System.out.println("What is the Constant Fixed Decimal Place ?");
+                        int placement = scanner.nextInt();
+                        compiler = new FixedPlaceCompiler(input, placement);
+                    }
+                    else {
+                        compiler = new CalculatorCompiler(input);
+                    }
                     // Compiling and Execute
-                    Compiler compiler = new Compiler(input);
                     String result = compiler.execute();
                     System.out.println("= " + result);
 
@@ -61,8 +77,18 @@ public class Main {
             // Build Current Level's Tree Diagram
             for (Node node: currentNodes) {
                 Expression expr = node.getExpr();
+                if (expr.getName().matches("(.*)Extended(.*)")) {
+                    expr = (ExpressionDecorator) expr;
+                }
                 if (expr.getName().matches("(.*)BinaryExpr(.*)")) {
-                    BinaryExpr b = (BinaryExpr) node.getExpr();
+                    BinaryExpr b = null;
+                    if (expr.getName().matches("(.*)Extended(.*)")) {
+                        ExpressionDecorator exprDecorator = (ExpressionDecorator) node.getExpr();
+                        b = (BinaryExpr) exprDecorator.getExpression();
+                    }
+                    else {
+                        b = (BinaryExpr) node.getExpr();
+                    }
                     Node newLeftNode = new Node(b.getLeft());
                     newNodes.add(newLeftNode);
                     node.left = newLeftNode;

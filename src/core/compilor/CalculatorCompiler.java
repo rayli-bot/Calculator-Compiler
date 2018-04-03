@@ -1,6 +1,7 @@
-package core.compile;
+package core.compilor;
 import java.util.List;
 import java.util.ArrayList;
+
 import core.expression.*;
 import exception.CompileException;
 
@@ -8,16 +9,16 @@ import exception.CompileException;
 /**
  * Factory Pattern
  */
-public class Compiler {
+public class CalculatorCompiler {
     public Expression getFinalExpr() {
         return finalExpr;
     }
 
-    private String input;
-    private List<String> tokens;
-    private Expression finalExpr;
+    protected String input;
+    protected List<String> tokens;
+    protected Expression finalExpr;
 
-    public Compiler(String input) {
+    public CalculatorCompiler(String input) {
         this.input = input;
         System.out.println("Input: " + input);
     }
@@ -25,7 +26,7 @@ public class Compiler {
     public String execute() throws CompileException {
         try {
             lexing();
-            List<Object> ast = parse(); // AST = Abstract Syntax Tree
+            List<CompilerElement> ast = parse(); // AST = Abstract Syntax Tree
             finalExpr = compile(ast);
             return Float.toString(finalExpr.operate());
         } catch (Exception e) {
@@ -101,8 +102,8 @@ public class Compiler {
      * You may override this method to Parse different Expression
      * @throws CompileException
      */
-    public List<Object> parse() throws CompileException {
-        List<Object> list = new ArrayList<Object>();
+    public List<CompilerElement> parse() throws CompileException {
+        List<CompilerElement> list = new ArrayList<CompilerElement>();
         Expression output;
 
         while(tokens.size() > 0) {
@@ -112,7 +113,7 @@ public class Compiler {
                 try{
                     float num = Float.valueOf(token);
                     Constant constant = new Constant(num);
-                    list.add(constant);
+                    list.add(new CompilerElement(constant, true));
                 }
                 catch (Exception e) {
                     throw new CompileException(token);
@@ -124,7 +125,7 @@ public class Compiler {
                 tokens.remove(0);
                 Expression innerExpr = compile(parse());
                 ParenthesesExpr parent = new ParenthesesExpr(innerExpr);
-                list.add(parent);
+                list.add(new CompilerElement(parent, true));
             }
             // Right Parenthesis
             else if (token.matches("\\)")) {
@@ -133,7 +134,7 @@ public class Compiler {
             }
             // Current Supported Operator
             else if (token.matches("^[\\+\\-\\*\\/]")) {
-                list.add(token);
+                list.add(new CompilerElement(token, false));
             }
             // Exception
             else {
@@ -151,7 +152,7 @@ public class Compiler {
      * You may override this method to Compile different Expression
      * @throws CompileException
      */
-    public Expression compile(List<Object> list) throws CompileException {
+    public Expression compile(List<CompilerElement> list) throws CompileException {
         List<Expression> expressions = new ArrayList<Expression>();
         // Expression last = null;
         // Finish All Expressions and operators
@@ -160,51 +161,52 @@ public class Compiler {
             boolean isExpression = false;
 
             for(int i = 0 ; i < list.size() ; i++) {
-                Object element = list.get(i);
-                String className = element.getClass().getName();
+                Object element = list.get(i).getObject();
 
                 // Operator
-                if (className.matches("(.*)String(.*)")) {
+                if (!list.get(i).isExpression) {
                     if (!(((i - 1) >= 0) && ((i + 1) < list.size()))) { throw new CompileException("Headless Expression"); }
-                    else if (!isExpression(list.get(i-1)) || !isExpression(list.get(i+1))) throw new CompileException("Successive Operators");
+                    else if (!list.get(i-1).isExpression || !list.get(i+1).isExpression) throw new CompileException("Successive Operators");
                     if (element.toString().matches("^[\\*\\/]")) {
-                        BinaryExpr expression = new BinaryExpr((Expression) list.get(i-1), (Expression) list.get(i+1), (String) element);
+                        BinaryExpr expression = new BinaryExpr((Expression) list.get(i-1).getObject(), (Expression) list.get(i+1).getObject(), (String) element);
                         list.subList(i-1, i+2).clear();
-                        list.add(i-1, expression);
+                        list.add(i-1, new CompilerElement(expression, true));
                     }
                     // Not Primary Operation
                     // Do this until no more Primary Operation
                     else {
                         if(!hasPrimary(list)) {
-                            BinaryExpr expression = new BinaryExpr((Expression) list.get(i-1), (Expression) list.get(i+1), (String) element);
+                            BinaryExpr expression = new BinaryExpr((Expression) list.get(i-1).getObject(), (Expression) list.get(i+1).getObject(), (String) element);
                             list.subList(i-1, i+2).clear();
-                            list.add(i-1, expression);
+                            list.add(i-1, new CompilerElement(expression, true));
                         }
                     }
                 }
             }
-            System.out.println(list);
         }
-        return (Expression) list.get(0);
+        return (Expression) list.get(0).getObject();
     }
 
-    public boolean isExpression (Object obj) {
-        String className = obj.getClass().getName();
-        if (className.matches("(.*)expression(.*)")) {
-            return true;
-        }
-        else return false;
-    }
-
-    public boolean hasPrimary (List<Object> objs) {
-        for(Object obj: objs) {
-            String className = obj.getClass().getName();
-            if (className.matches("(.*)String(.*)")) {
-                if (obj.toString().matches("^[\\*\\/]")) {
+    public boolean hasPrimary (List<CompilerElement> objs) {
+        for(CompilerElement obj: objs) {
+            if (!obj.isExpression) {
+                if (obj.getObject().toString().matches("^[\\*\\/]")) {
                     return true;
                 }
             }
         }
         return false;
+    }
+
+    protected class CompilerElement {
+        private Object obj;
+        public boolean isExpression;
+
+        public CompilerElement(Object obj, boolean isExpression) {
+            this.obj = obj;
+            this.isExpression = isExpression;
+        }
+
+        public Object getObject() { return obj; }
     }
 }
