@@ -1,11 +1,11 @@
-package expression;
+package core.expression;
 import type.OrderType;
 import exception.OperateException;
 
-public class ParenthesisExpr implements Expression {
+public class ParenthesesExpr implements Expression {
     Expression expr;
 
-    public ParenthesisExpr(Expression expr) {
+    public ParenthesesExpr(Expression expr) {
         this.expr = expr;
     }
 
@@ -14,6 +14,10 @@ public class ParenthesisExpr implements Expression {
     public float operate() throws OperateException{
         return expr.operate();
     }
+
+    public Expression getExpr() { return expr; }
+
+    public String getName() { return "(Parentheses)"; }
 
     public String toString() {
         return expr.toString();

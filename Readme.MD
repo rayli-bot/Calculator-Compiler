@@ -14,9 +14,9 @@ It can be extended if you implements other Expression Class.
     - BinaryExpr
         * Binary Expression 
         * e.g: `1 + 1` or `5 * 3`
-        * Operands can be another expression, not only constant
+        * Operands can be another core.expression, not only constant
     - ParenthesisExpr
-        * Will pointed to the expression inside the Parenthesis
+        * Will pointed to the core.expression inside the Parenthesis
         * e.g: `(1 + 1)` will pointed to the BinaryExpr of `1 + 1`
         
         
@@ -24,8 +24,17 @@ It can be extended if you implements other Expression Class.
 1. Factory Pattern
     - From Compiler to create Expressions
     
-# Abstract Syntax Tree
+### Abstract Syntax Tree
 
-Expression will compile into a tree, whole tree will be created recursively in the compiler
+Expression will core.compile into a tree, whole tree will be created recursively in the compiler
 
 ![Syntax Tree](./snapshot/tree_diagram.png)
+
+## How To Use
+- git clone this repo.
+- `java -jar /path/to/this/repo/calculator.jar`
+
+### Todo-List
+- [X] Tree Visualisation in CLI
+- [ ] Calculator in GUI
+- [ ] Tree Visualisation in GUI

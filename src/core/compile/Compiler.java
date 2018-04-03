@@ -1,9 +1,7 @@
-package compile;
+package core.compile;
 import java.util.List;
 import java.util.ArrayList;
-import expression.*;
-import java.util.regex.Pattern;
-import java.util.regex.Matcher;
+import core.expression.*;
 import exception.CompileException;
 
 
@@ -11,23 +9,27 @@ import exception.CompileException;
  * Factory Pattern
  */
 public class Compiler {
-    String input;
-    List<String> tokens;
+    public Expression getFinalExpr() {
+        return finalExpr;
+    }
+
+    private String input;
+    private List<String> tokens;
+    private Expression finalExpr;
 
     public Compiler(String input) {
         this.input = input;
         System.out.println("Input: " + input);
     }
 
-    public String execute() {
+    public String execute() throws CompileException {
         try {
             lexing();
             List<Object> ast = parse(); // AST = Abstract Syntax Tree
-            Expression finalExpression = compile(ast);
-            return Float.toString(finalExpression.operate());
+            finalExpr = compile(ast);
+            return Float.toString(finalExpr.operate());
         } catch (Exception e) {
-            System.out.println(e.toString());
-            return null;
+            throw new CompileException(e.toString());
         }
     }
 
@@ -121,7 +123,7 @@ public class Compiler {
             else if (token.matches("\\(")) {
                 tokens.remove(0);
                 Expression innerExpr = compile(parse());
-                ParenthesisExpr parent = new ParenthesisExpr(innerExpr);
+                ParenthesesExpr parent = new ParenthesesExpr(innerExpr);
                 list.add(parent);
             }
             // Right Parenthesis

@@ -1,11 +1,19 @@
-package expression;
+package core.expression;
 import type.OrderType;
 import exception.OperateException;
 
 public class BinaryExpr implements Expression {
-    Expression leftOperand;
-    Expression rightOperand;
+    private Expression leftOperand;
+    private Expression rightOperand;
     String operator;
+
+    public Expression getLeft() {
+        return leftOperand;
+    }
+
+    public Expression getRight() {
+        return rightOperand;
+    }
 
     public BinaryExpr(Expression left, Expression right, String operator) {
         this.leftOperand = left;
@@ -43,6 +51,8 @@ public class BinaryExpr implements Expression {
                 throw new OperateException(a, b, operator);
         }
     }
+
+    public String getName() { return "BinaryExpr : " + operator; }
 
     public String toString() {
         return leftOperand.toString() + this.operator + rightOperand.toString();
