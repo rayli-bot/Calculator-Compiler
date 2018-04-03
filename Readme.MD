@@ -2,9 +2,12 @@
 
 The Calculator consist of five operations :  `+, -, *, ()`
 
+<b style="color:green;">This Calculator Compiler included the visualisation of the syntax tree</b>
+
 It can be extended if you implements other Expression Class.
 
 # Structure
+
 ![Structure Diagram](./snapshot/structure_diagram.png)
 1. Compiler act as the Factory to create Expressions from plain text
 2. All Expressions are implement one common interface: `Expression`
@@ -23,18 +26,20 @@ It can be extended if you implements other Expression Class.
 # Design Pattern
 1. Factory Pattern
     - From Compiler to create Expressions
-    
-### Abstract Syntax Tree
+
+## Abstract Syntax Tree
 
 Expression will core.compile into a tree, whole tree will be created recursively in the compiler
 
 ![Syntax Tree](./snapshot/tree_diagram.png)
 
 ## How To Use
-- git clone this repo.
+
+- `git clone https://github.com/rayli-bot/Calculator-Compiler`.
 - `java -jar /path/to/this/repo/calculator.jar`
 
 ### Todo-List
+
 - [X] Tree Visualisation in CLI
 - [ ] Calculator in GUI
 - [ ] Tree Visualisation in GUI
