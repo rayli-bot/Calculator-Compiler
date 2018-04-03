@@ -6,7 +6,15 @@ The Calculator consist of five operations :  `+, -, *, ()`
 
 It can be extended if you implements other Expression Class.
 
-# Structure
+## Sample Output
+
+1. Simple Output
+![Output 1](./snapshot/sample1.png)
+
+2. Complex Output
+![Output 2](./snapshot/sample2.png)
+
+## Structure
 
 ![Structure Diagram](./snapshot/structure_diagram.png)
 1. Compiler act as the Factory to create Expressions from plain text
